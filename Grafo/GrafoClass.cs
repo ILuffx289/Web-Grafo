@@ -165,6 +165,85 @@ namespace Grafo
             return salida3;
         }
 
+        public string[] RecorridoProfundidadPreOrden(string NomC, ref string msg)
+        {
+            string[] resultado = null;
+            int vertIni = BuscarPorCiudad(NomC, ref msg);
+
+            if (vertIni >= 0)
+            {
+                bool[] visitado = new bool[ListaAdyacencia.Count];
+                List<string> visitados = new List<string>();
+
+                Stack<int> pila = new Stack<int>();
+                pila.Push(vertIni);
+                visitado[vertIni] = true;
+
+                while (pila.Count > 0)
+                {
+                    int v = pila.Pop();
+                    visitados.Add(ListaAdyacencia[v].infoCiudad());
+
+                    int[] adyacentes = ListaAdyacencia[v].ObtenerPos();
+                    foreach (int adyacente in adyacentes)
+                    {
+                        if (!visitado[adyacente])
+                        {
+                            visitado[adyacente] = true;
+                            pila.Push(adyacente);
+                        }
+                    }
+                }
+
+                // Si la primera ciudad visitada es la misma que NomC, eliminarla
+                if (visitados.Count > 0 && visitados[0] == NomC)
+                {
+                    visitados.RemoveAt(0);
+                }
+
+                resultado = visitados.ToArray();
+            }
+            else
+            {
+                msg = "Vertice no encontrado";
+                resultado = new string[] { "No se ha encontrado nada" };
+            }
+
+            return resultado;
+        }
+
+        public string[] RecorridoAmplitud(int vertIni)
+        {
+            bool[] visitado = new bool[ListaAdyacencia.Count];
+            Queue<int> cola = new Queue<int>();
+            string[] visitados = new string[ListaAdyacencia.Count];
+            int index = 0;
+
+            cola.Enqueue(vertIni);
+            visitado[vertIni] = true;
+
+            while (cola.Count > 0)
+            {
+                int v = cola.Dequeue();
+                visitados[index++] = ListaAdyacencia[v].infoCiudad();
+                Console.WriteLine($"Visitando: {ListaAdyacencia[v].infoCiudad()}"); // Mensaje de depuración
+
+                List<NodoLista> adyacentes = ListaAdyacencia[v].ListaEnlaces.ObtenerNodos();
+                Console.WriteLine($"Adyacentes de {ListaAdyacencia[v].infoCiudad()}: {string.Join(", ", adyacentes.Select(a => a.nvertice))}"); // Mensaje de depuración
+                foreach (NodoLista adyacente in adyacentes)
+                {
+                    if (!visitado[adyacente.nvertice])
+                    {
+                        cola.Enqueue(adyacente.nvertice);
+                        visitado[adyacente.nvertice] = true;
+                    }
+                }
+            }
+
+            string[] resultado = new string[index];
+            Array.Copy(visitados, resultado, index);
+            return resultado;
+        }
 
 
 
